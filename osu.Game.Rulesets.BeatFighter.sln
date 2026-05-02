@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "osu.Game.Rulesets.BeatFight
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu.Game.Rulesets.BeatFighter.Tests", "osu.Game.Rulesets.BeatFighter.Tests\osu.Game.Rulesets.BeatFighter.Tests.csproj", "{B4577C85-CB83-462A-BCE3-22FFEB16311D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu.Game", "..\osu\osu.Game\osu.Game.csproj", "{F59F26D0-FB28-46AE-9C4F-64E64F011EBD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,12 @@ Global
 		{B4577C85-CB83-462A-BCE3-22FFEB16311D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B4577C85-CB83-462A-BCE3-22FFEB16311D}.VisualTests|Any CPU.ActiveCfg = Debug|Any CPU
 		{B4577C85-CB83-462A-BCE3-22FFEB16311D}.VisualTests|Any CPU.Build.0 = Debug|Any CPU
+		{F59F26D0-FB28-46AE-9C4F-64E64F011EBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F59F26D0-FB28-46AE-9C4F-64E64F011EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F59F26D0-FB28-46AE-9C4F-64E64F011EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F59F26D0-FB28-46AE-9C4F-64E64F011EBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F59F26D0-FB28-46AE-9C4F-64E64F011EBD}.VisualTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{F59F26D0-FB28-46AE-9C4F-64E64F011EBD}.VisualTests|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

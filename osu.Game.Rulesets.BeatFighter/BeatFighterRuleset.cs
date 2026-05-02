@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Bindings;
 using osu.Game.Beatmaps;
@@ -16,7 +15,6 @@ using osu.Game.Rulesets.BeatFighter.Mods;
 using osu.Game.Rulesets.BeatFighter.UI;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.UI;
-using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.BeatFighter
@@ -62,17 +60,15 @@ namespace osu.Game.Rulesets.BeatFighter
             {
                 InternalChildren = new Drawable[]
                 {
-                    new Circle
-                    {
-                        Size = new Vector2(20),
-                        Colour = Color4.White,
-                    },
                     new SpriteText
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Text = c.ToString(),
-                        Font = OsuFont.Default.With(size: 18)
+                        Rotation = 90,
+                        X = 27,
+                        Y = 2,
+                        Text = 'B'.ToString(),
+                        Font = OsuFont.Default.With(size:30),
+                        Colour = Color4.White,
+                        Shadow = true,
                     }
                 };
             }
