@@ -1,6 +1,7 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using osu.Game.Rulesets.BeatFighter.Judgements;
 using osu.Game.Rulesets.Judgements;
 using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.Objects.Types;
@@ -10,7 +11,7 @@ namespace osu.Game.Rulesets.BeatFighter.Objects
 {
     public class BeatFighterHitObject : HitObject, IHasPosition
     {
-        public override Judgement CreateJudgement() => new Judgement();
+        public override Judgement CreateJudgement() => new BeatfighterJudgement(); //test
 
         public Vector2 Position { get; set; }
 

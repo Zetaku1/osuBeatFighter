@@ -62,10 +62,18 @@ namespace osu.Game.Rulesets.BeatFighter
                 {
                     new SpriteText
                     {
-                        Rotation = 90,
-                        X = 27,
-                        Y = 2,
+                        X = 1,
+                        Y = -9, // Idk why it allows negative values, but ill flow with it
                         Text = 'B'.ToString(),
+                        Font = OsuFont.Default.With(size:30),
+                        Colour = Color4.White,
+                        Shadow = true,
+                    },
+                    new SpriteText
+                    {
+                        X = 6,
+                        Y = -4,
+                        Text = 'F'.ToString(),
                         Font = OsuFont.Default.With(size:30),
                         Colour = Color4.White,
                         Shadow = true,
