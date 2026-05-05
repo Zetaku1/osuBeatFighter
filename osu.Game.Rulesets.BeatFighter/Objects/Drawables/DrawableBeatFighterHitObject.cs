@@ -2,6 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
+using osu.Game.Graphics;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Scoring;
 using osuTK;
@@ -20,6 +22,25 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
             Position = hitObject.Position;
 
             // todo: add visuals.
+            AddRangeInternal(new Drawable[]
+            {
+                new SpriteText
+                {
+                    Anchor = Anchor.Centre,
+                    Text = 'B'.ToString(),
+                    Font = OsuFont.Default.With(size: 30),
+                    Colour = Color4.White,
+                    Shadow = true,
+                },
+                new SpriteText
+                {
+                    Anchor = Anchor.Centre,
+                    Text = 'F'.ToString(),
+                    Font = OsuFont.Default.With(size: 30),
+                    Colour = Color4.White,
+                    Shadow = true,
+                }
+            });
         }
 
         protected override void CheckForResult(bool userTriggered, double timeOffset)
