@@ -26,7 +26,7 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
         {
             if (timeOffset >= 0)
                 // todo: implement judgement logic
-                ApplyResult(HitResult.Perfect);
+                ApplyResult(HitResult.Great);
         }
 
         protected override void UpdateHitStateTransforms(ArmedState state)

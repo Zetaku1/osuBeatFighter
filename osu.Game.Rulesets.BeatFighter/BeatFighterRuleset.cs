@@ -14,6 +14,7 @@ using osu.Game.Rulesets.BeatFighter.Beatmaps;
 using osu.Game.Rulesets.BeatFighter.Mods;
 using osu.Game.Rulesets.BeatFighter.UI;
 using osu.Game.Rulesets.Mods;
+using osu.Game.Rulesets.Scoring;
 using osu.Game.Rulesets.UI;
 using osuTK.Graphics;
 
@@ -65,7 +66,7 @@ namespace osu.Game.Rulesets.BeatFighter
                         X = 1,
                         Y = -9, // Idk why it allows negative values, but ill flow with it
                         Text = 'B'.ToString(),
-                        Font = OsuFont.Default.With(size:30),
+                        Font = OsuFont.Default.With(size: 30),
                         Colour = Color4.White,
                         Shadow = true,
                     },
@@ -74,12 +75,33 @@ namespace osu.Game.Rulesets.BeatFighter
                         X = 6,
                         Y = -4,
                         Text = 'F'.ToString(),
-                        Font = OsuFont.Default.With(size:30),
+                        Font = OsuFont.Default.With(size: 30),
                         Colour = Color4.White,
                         Shadow = true,
                     }
                 };
             }
+        }
+
+        public override IEnumerable<HitResult> GetValidHitResults()
+        {
+            return new[]
+            {
+                HitResult.Great,
+                HitResult.Ok,
+                HitResult.Meh,
+                HitResult.Miss,
+
+                HitResult.LargeTickHit,
+                HitResult.LargeTickMiss,
+                HitResult.SmallTickHit,
+                HitResult.SmallTickMiss,
+                HitResult.SliderTailHit,
+                HitResult.SmallBonus,
+                HitResult.LargeBonus,
+                HitResult.IgnoreHit,
+                HitResult.IgnoreMiss,
+            };
         }
 
         // Leave this line intact. It will bake the correct version into the ruleset on each build/release.
