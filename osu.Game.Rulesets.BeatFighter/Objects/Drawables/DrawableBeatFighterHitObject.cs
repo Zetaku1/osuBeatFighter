@@ -1,9 +1,11 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using osu.Framework.Logging;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
-using osu.Game.Graphics;
+using osu.Framework.Graphics.Textures;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Scoring;
 using osuTK;
@@ -13,6 +15,19 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
 {
     public partial class DrawableBeatFighterHitObject : DrawableHitObject<BeatFighterHitObject>
     {
+        private Sprite iconSprite = null!;
+
+        [BackgroundDependencyLoader]
+        private void load(TextureStore textures)
+        {
+            iconSprite.Texture = textures.Get(@"Bucket");
+
+            if (iconSprite.Texture == null)
+            {
+                Logger.Log("Failed to find bucket texture!", LoggingTarget.Runtime, LogLevel.Important);
+            }
+        }
+
         public DrawableBeatFighterHitObject(BeatFighterHitObject hitObject)
             : base(hitObject)
         {
@@ -21,25 +36,16 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
 
             Position = hitObject.Position;
 
+            iconSprite = new Sprite()
+            {
+                RelativeSizeAxes = Axes.Both,
+                Anchor = Anchor.Centre,
+                Alpha = 1.0f
+            };
             // todo: add visuals.
             AddRangeInternal(new Drawable[]
             {
-                new SpriteText
-                {
-                    Anchor = Anchor.Centre,
-                    Text = 'B'.ToString(),
-                    Font = OsuFont.Default.With(size: 30),
-                    Colour = Color4.White,
-                    Shadow = true,
-                },
-                new SpriteText
-                {
-                    Anchor = Anchor.Centre,
-                    Text = 'F'.ToString(),
-                    Font = OsuFont.Default.With(size: 30),
-                    Colour = Color4.White,
-                    Shadow = true,
-                }
+                iconSprite
             });
         }
 
