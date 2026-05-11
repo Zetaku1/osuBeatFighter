@@ -6,6 +6,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Utils;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Scoring;
 using osuTK;
@@ -16,6 +17,15 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
     public partial class DrawableBeatFighterHitObject : DrawableHitObject<BeatFighterHitObject>
     {
         private Sprite iconSprite = null!;
+        public Vector2 StartingPosition = new Vector2(600, 300);
+        public Vector2 EndPosition = new Vector2(-300, -300);
+        public Vector2 DeltaPosition = new Vector2(-3f, -1.5f);
+
+        public Vector2 StartingSize = new Vector2(1.0f);
+        public Vector2 EndSize = new Vector2(0.05f);
+        public Vector2 DeltaSize = new Vector2(-0.005f);
+
+        public float DeltaRotation = 0.01f;
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
@@ -31,18 +41,21 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
         public DrawableBeatFighterHitObject(BeatFighterHitObject hitObject)
             : base(hitObject)
         {
-            Size = new Vector2(40);
             Origin = Anchor.Centre;
-
-            Position = hitObject.Position;
-
+            Anchor = Anchor.Centre;
+            RelativeSizeAxes = Axes.Both;
             iconSprite = new Sprite()
             {
-                RelativeSizeAxes = Axes.Both,
+                Origin = Anchor.Centre,
                 Anchor = Anchor.Centre,
+                Position = StartingPosition,
+                RelativeSizeAxes = Axes.Both,
+                Size = StartingSize,
+                Rotation = RNG.Next(),
+
                 Alpha = 1.0f
             };
-            // todo: add visuals.
+
             AddRangeInternal(new Drawable[]
             {
                 iconSprite
@@ -54,6 +67,23 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
             if (timeOffset >= 0)
                 // todo: implement judgement logic
                 ApplyResult(HitResult.Great);
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (Position.X > EndPosition.X || Position.Y > EndPosition.Y)
+            {
+                Position += DeltaPosition;
+            }
+
+            //Rotation += DeltaRotation;
+
+            if (Size.X > EndSize.X)
+            {
+                Size += DeltaSize;
+            }
         }
 
         protected override void UpdateHitStateTransforms(ArmedState state)
