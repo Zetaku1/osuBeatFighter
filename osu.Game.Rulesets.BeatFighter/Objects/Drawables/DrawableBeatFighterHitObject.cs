@@ -17,15 +17,15 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
     public partial class DrawableBeatFighterHitObject : DrawableHitObject<BeatFighterHitObject>
     {
         private Sprite iconSprite = null!;
-        public Vector2 StartingPosition = new Vector2(600, 300);
-        public Vector2 EndPosition = new Vector2(-300, -300);
-        public Vector2 DeltaPosition = new Vector2(-3f, -1.5f);
+        public Vector2 StartingPosition = new Vector2(500, 500);
+        public Vector2 EndPosition = new Vector2(0, 0);
+        public Vector2 DeltaPosition = new Vector2(-2f, -2f);
 
-        public Vector2 StartingSize = new Vector2(1.0f);
-        public Vector2 EndSize = new Vector2(0.05f);
+        public Vector2 StartingScale = new Vector2(1.0f);
+        public Vector2 EndScale = new Vector2(0.05f);
         public Vector2 DeltaSize = new Vector2(-0.005f);
 
-        public float DeltaRotation = 0.01f;
+        public float DeltaRotation = -0.5f;
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
@@ -43,16 +43,15 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
         {
             Origin = Anchor.Centre;
             Anchor = Anchor.Centre;
-            RelativeSizeAxes = Axes.Both;
+            Size = new Vector2(400);
             iconSprite = new Sprite()
             {
+                RelativeSizeAxes = Axes.Both,
                 Origin = Anchor.Centre,
                 Anchor = Anchor.Centre,
+                Scale = new Vector2(1.5f),
                 Position = StartingPosition,
-                RelativeSizeAxes = Axes.Both,
-                Size = StartingSize,
-                Rotation = RNG.Next(),
-
+                Rotation = RNG.NextSingle() * 360,
                 Alpha = 1.0f
             };
 
@@ -78,11 +77,11 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
                 Position += DeltaPosition;
             }
 
-            //Rotation += DeltaRotation;
+            Rotation += DeltaRotation;
 
-            if (Size.X > EndSize.X)
+            if (Scale.X > EndScale.X)
             {
-                Size += DeltaSize;
+                Scale += DeltaSize;
             }
         }
 
