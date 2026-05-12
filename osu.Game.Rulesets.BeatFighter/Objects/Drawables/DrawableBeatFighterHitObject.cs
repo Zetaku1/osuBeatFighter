@@ -25,12 +25,16 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
         public Vector2 EndScale = new Vector2(0.05f);
         public Vector2 DeltaSize = new Vector2(-0.005f);
 
+        //Time betweeen the object appearing on screen and reaching its end trajectory
+        public const double duration = 1000;
+
         public float DeltaRotation = -0.5f;
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
             iconSprite.Texture = textures.Get(@"Bucket");
+            Alpha = 0;
 
             if (iconSprite.Texture == null)
             {
@@ -44,6 +48,7 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
             Origin = Anchor.Centre;
             Anchor = Anchor.Centre;
             Size = new Vector2(400);
+            LifetimeStart = HitObject.StartTime - duration;
             iconSprite = new Sprite()
             {
                 RelativeSizeAxes = Axes.Both,
@@ -52,7 +57,7 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
                 Scale = new Vector2(1.5f),
                 Position = StartingPosition,
                 Rotation = RNG.NextSingle() * 360,
-                Alpha = 1.0f
+                Alpha = 0.0f
             };
 
             AddRangeInternal(new Drawable[]
@@ -71,24 +76,27 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
         protected override void UpdateInitialTransforms()
         {
             base.UpdateInitialTransforms();
-            const float duration = 1000.0f;
-            // Move from (200,200) to (0,0) and Scale from 3 to 1 over 500ms
-            iconSprite.RotateTo(RNG.NextSingle() * 360 - 360, duration + 300, Easing.OutQuint);
 
-            iconSprite.MoveToX(EndPosition.X, duration, Easing.OutQuint)
-                      .Then()
-                      .FadeOut();
+            using (BeginAbsoluteSequence(HitObject.StartTime - duration))
+            {
+                iconSprite.FadeIn(100);
+                // Move from (200,200) to (0,0) and Scale from 3 to 1 over 500ms
+                iconSprite.RotateTo(RNG.NextSingle() * 360 - 360, duration + 300, Easing.OutQuint);
 
-            iconSprite.MoveToY(EndPosition.Y - 50, duration / 3.0f, Easing.OutQuint)
-                      .Then()
-                      .MoveToY(EndPosition.Y, duration / 1.2f, Easing.OutQuint);
-            iconSprite.ScaleTo(EndScale, duration, Easing.OutQuint);
+                iconSprite.MoveToX(EndPosition.X, duration, Easing.OutQuint)
+                          .Then()
+                          .FadeOut();
+
+                iconSprite.MoveToY(EndPosition.Y - 50, duration / 3.0f, Easing.OutQuint)
+                          .Then()
+                          .MoveToY(EndPosition.Y, duration / 1.2f, Easing.OutQuint);
+                iconSprite.ScaleTo(EndScale, duration, Easing.OutQuint);
+
+            }
         }
 
         protected override void UpdateHitStateTransforms(ArmedState state)
         {
-            const double duration = 1000;
-
             switch (state)
             {
                 case ArmedState.Hit:
