@@ -16,6 +16,8 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
 {
     public partial class DrawableBeatFighterHitObject : DrawableHitObject<BeatFighterHitObject>
     {
+        private const double time_preempt = 600;
+        private const double time_fadein = 400;
         private Sprite iconSprite = null!;
         public Vector2 StartingPosition = new Vector2(500, 500);
         public Vector2 EndPosition = new Vector2(0, 0);
@@ -41,6 +43,8 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
                 Logger.Log("Failed to find bucket texture!", LoggingTarget.Runtime, LogLevel.Important);
             }
         }
+
+        protected override double InitialLifetimeOffset => time_preempt + duration;
 
         public DrawableBeatFighterHitObject(BeatFighterHitObject hitObject)
             : base(hitObject)
@@ -76,23 +80,20 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
         protected override void UpdateInitialTransforms()
         {
             base.UpdateInitialTransforms();
+            this.FadeInFromZero(100);
 
-            using (BeginAbsoluteSequence(HitObject.StartTime - duration))
-            {
-                iconSprite.FadeIn(100);
-                // Move from (200,200) to (0,0) and Scale from 3 to 1 over 500ms
-                iconSprite.RotateTo(RNG.NextSingle() * 360 - 360, duration + 300, Easing.OutQuint);
+            iconSprite.FadeIn(100);
+            // Move from (200,200) to (0,0) and Scale from 3 to 1 over 500ms
+            iconSprite.RotateTo(RNG.NextSingle() * 360 - 360, duration * 2, Easing.OutQuint);
 
-                iconSprite.MoveToX(EndPosition.X, duration, Easing.OutQuint)
-                          .Then()
-                          .FadeOut();
+            iconSprite.MoveToX(EndPosition.X, duration, Easing.OutQuint)
+                      .Then()
+                      .FadeOut();
 
-                iconSprite.MoveToY(EndPosition.Y - 50, duration / 3.0f, Easing.OutQuint)
-                          .Then()
-                          .MoveToY(EndPosition.Y, duration / 1.2f, Easing.OutQuint);
-                iconSprite.ScaleTo(EndScale, duration, Easing.OutQuint);
-
-            }
+            iconSprite.MoveToY(EndPosition.Y - 50, duration / 3.0f, Easing.OutQuint)
+                      .Then()
+                      .MoveToY(EndPosition.Y, duration / 1.2f, Easing.OutQuint);
+            iconSprite.ScaleTo(EndScale, duration, Easing.OutQuint);
         }
 
         protected override void UpdateHitStateTransforms(ArmedState state)
