@@ -68,21 +68,21 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
                 ApplyResult(HitResult.Great);
         }
 
-        protected override void Update()
+        protected override void UpdateInitialTransforms()
         {
-            base.Update();
+            base.UpdateInitialTransforms();
+            const float duration = 1000.0f;
+            // Move from (200,200) to (0,0) and Scale from 3 to 1 over 500ms
+            iconSprite.RotateTo(RNG.NextSingle() * 360 - 360, duration + 300, Easing.OutQuint);
 
-            if (Position.X > EndPosition.X || Position.Y > EndPosition.Y)
-            {
-                Position += DeltaPosition;
-            }
+            iconSprite.MoveToX(EndPosition.X, duration, Easing.OutQuint)
+                      .Then()
+                      .FadeOut();
 
-            Rotation += DeltaRotation;
-
-            if (Scale.X > EndScale.X)
-            {
-                Scale += DeltaSize;
-            }
+            iconSprite.MoveToY(EndPosition.Y - 50, duration / 3.0f, Easing.OutQuint)
+                      .Then()
+                      .MoveToY(EndPosition.Y, duration / 1.2f, Easing.OutQuint);
+            iconSprite.ScaleTo(EndScale, duration, Easing.OutQuint);
         }
 
         protected override void UpdateHitStateTransforms(ArmedState state)
