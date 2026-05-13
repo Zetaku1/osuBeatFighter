@@ -9,10 +9,12 @@ namespace osu.Game.Rulesets.BeatFighter.Scoring
 {
     public class BeatFighterHitWindows : HitWindows //Taken from Taiko for now, why Taiko? because i can
     {
-        public static readonly DifficultyRange GREAT_WINDOW_RANGE = new DifficultyRange(50, 35, 20);
+        public static readonly DifficultyRange PERFECT_WINDOW_RANGE = new DifficultyRange(50, 35, 20);
+        public static readonly DifficultyRange GREAT_WINDOW_RANGE = new DifficultyRange(80, 55, 40);
         public static readonly DifficultyRange OK_WINDOW_RANGE = new DifficultyRange(120, 80, 50);
         public static readonly DifficultyRange MISS_WINDOW_RANGE = new DifficultyRange(135, 95, 70);
 
+        private double perfect;
         private double great;
         private double ok;
         private double miss;
@@ -21,6 +23,7 @@ namespace osu.Game.Rulesets.BeatFighter.Scoring
         {
             switch (result)
             {
+                case HitResult.Perfect:
                 case HitResult.Great:
                 case HitResult.Ok:
                 case HitResult.Miss:
@@ -32,6 +35,7 @@ namespace osu.Game.Rulesets.BeatFighter.Scoring
 
         public override void SetDifficulty(double difficulty)
         {
+            perfect = Math.Floor(IBeatmapDifficultyInfo.DifficultyRange(difficulty, PERFECT_WINDOW_RANGE)) - 0.5;
             great = Math.Floor(IBeatmapDifficultyInfo.DifficultyRange(difficulty, GREAT_WINDOW_RANGE)) - 0.5;
             ok = Math.Floor(IBeatmapDifficultyInfo.DifficultyRange(difficulty, OK_WINDOW_RANGE)) - 0.5;
             miss = Math.Floor(IBeatmapDifficultyInfo.DifficultyRange(difficulty, MISS_WINDOW_RANGE)) - 0.5;
@@ -41,6 +45,9 @@ namespace osu.Game.Rulesets.BeatFighter.Scoring
         {
             switch (result)
             {
+                case  HitResult.Perfect:
+                    return perfect;
+
                 case HitResult.Great:
                     return great;
 

@@ -8,6 +8,6 @@ namespace osu.Game.Rulesets.BeatFighter.Judgements
 {
     public class BeatfighterJudgement : Judgement
     {
-        public override HitResult MaxResult => HitResult.Great;
+        public override HitResult MaxResult => HitResult.Perfect;
     }
 }

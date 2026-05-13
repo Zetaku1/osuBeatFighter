@@ -1,12 +1,16 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Collections.Generic;
 using osu.Framework.Logging;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Input.Bindings;
+using osu.Framework.Input.Events;
 using osu.Framework.Utils;
+using osu.Game.Audio;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Scoring;
 using osuTK;
@@ -14,21 +18,27 @@ using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
 {
-    public partial class DrawableBeatFighterHitObject : DrawableHitObject<BeatFighterHitObject>
+    public partial class DrawableBeatFighterHitObject : DrawableHitObject<BeatFighterHitObject>, IKeyBindingHandler<BeatFighterAction>
     {
-        private const double time_preempt = 600;
-        private const double time_fadein = 400;
-        private Sprite iconSprite = null!;
-        public Vector2 StartingPosition = new Vector2(500, 500);
-        public Vector2 EndPosition = new Vector2(0, 0);
-        public Vector2 DeltaPosition = new Vector2(-2f, -2f);
+        public override bool HandlePositionalInput => false;
 
-        public Vector2 StartingScale = new Vector2(1.0f);
-        public Vector2 EndScale = new Vector2(0.05f);
-        public Vector2 DeltaSize = new Vector2(-0.005f);
+        private double time_preempt = 450;
+
+        private double time_fadein = 50;
 
         //Time betweeen the object appearing on screen and reaching its end trajectory
-        public const double duration = 1000;
+        private double time_duration = 1200;
+
+        private double time_fadeout_hit = 1200;
+        private double time_fadeout_miss = 1300;
+
+        private Sprite iconSprite;
+        public Vector2 StartingPosition = new Vector2(500, 500);
+        public Vector2 EndPosition = new Vector2(0, 0);
+        public Vector2 EndPositionMiss = new Vector2(-50, 50);
+
+        public Vector2 StartingScale = new Vector2(1.5f);
+        public Vector2 EndScale = new Vector2(0.2f);
 
         public float DeltaRotation = -0.5f;
 
@@ -44,7 +54,12 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
             }
         }
 
-        protected override double InitialLifetimeOffset => time_preempt + duration;
+        protected override double InitialLifetimeOffset => time_preempt;
+
+        public override IEnumerable<HitSampleInfo> GetSamples() => new[]
+        {
+            new HitSampleInfo(@"punch")
+        };
 
         public DrawableBeatFighterHitObject(BeatFighterHitObject hitObject)
             : base(hitObject)
@@ -52,13 +67,13 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
             Origin = Anchor.Centre;
             Anchor = Anchor.Centre;
             Size = new Vector2(400);
-            LifetimeStart = HitObject.StartTime - duration;
+            LifetimeStart = HitObject.StartTime - time_duration;
             iconSprite = new Sprite()
             {
                 RelativeSizeAxes = Axes.Both,
                 Origin = Anchor.Centre,
                 Anchor = Anchor.Centre,
-                Scale = new Vector2(1.5f),
+                Scale = StartingScale,
                 Position = StartingPosition,
                 Rotation = RNG.NextSingle() * 360,
                 Alpha = 0.0f
@@ -72,28 +87,35 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
 
         protected override void CheckForResult(bool userTriggered, double timeOffset)
         {
-            if (timeOffset >= 0)
-                // todo: implement judgement logic
-                ApplyResult(HitResult.Great);
+            if (!userTriggered)
+            {
+                if (!HitObject.HitWindows.CanBeHit(timeOffset))
+                    ApplyMinResult();
+                return;
+            }
+
+            var result = HitObject.HitWindows.ResultFor(timeOffset);
+            if (result == HitResult.None)
+                return;
+
+            ApplyResult(result);
         }
 
         protected override void UpdateInitialTransforms()
         {
             base.UpdateInitialTransforms();
-            this.FadeInFromZero(100);
+            this.FadeInFromZero(time_fadein);
 
-            iconSprite.FadeIn(100);
+            iconSprite.FadeIn(time_fadein);
             // Move from (200,200) to (0,0) and Scale from 3 to 1 over 500ms
-            iconSprite.RotateTo(RNG.NextSingle() * 360 - 360, duration * 2, Easing.OutQuint);
+            iconSprite.RotateTo(RNG.NextSingle() * 360 - 360, time_duration * 2, Easing.OutQuint);
 
-            iconSprite.MoveToX(EndPosition.X, duration, Easing.OutQuint)
-                      .Then()
-                      .FadeOut();
+            iconSprite.MoveToX(EndPosition.X, time_duration, Easing.OutQuint);
 
-            iconSprite.MoveToY(EndPosition.Y - 50, duration / 3.0f, Easing.OutQuint)
+            iconSprite.MoveToY(EndPosition.Y - 50, time_duration / 3.0f, Easing.OutQuint)
                       .Then()
-                      .MoveToY(EndPosition.Y, duration / 1.2f, Easing.OutQuint);
-            iconSprite.ScaleTo(EndScale, duration, Easing.OutQuint);
+                      .MoveToY(EndPosition.Y, time_duration / 1.2f, Easing.OutQuint);
+            iconSprite.ScaleTo(EndScale, time_duration, Easing.OutQuint);
         }
 
         protected override void UpdateHitStateTransforms(ArmedState state)
@@ -101,14 +123,30 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
             switch (state)
             {
                 case ArmedState.Hit:
-                    this.FadeOut(duration, Easing.OutQuint).Expire();
+                    this.FadeOut(time_fadeout_hit, Easing.OutQuint);
+                    iconSprite.MoveToX(Position.X + 1000, time_fadeout_hit, Easing.OutQuint).Expire();
                     break;
 
                 case ArmedState.Miss:
-                    this.FadeColour(Color4.Red, duration);
-                    this.FadeOut(duration, Easing.InQuint).Expire();
+                    this.FadeColour(Color4.Red, time_fadeout_miss);
+                    //iconSprite.RotateTo(iconSprite.Rotation - 60, time_fadeout_miss, Easing.OutQuint);
+                    iconSprite.ScaleTo(EndScale * 0.5f, time_fadeout_miss, Easing.OutQuint);
+                    iconSprite.MoveToX(EndPositionMiss.X, time_fadeout_miss, Easing.OutQuint);
+                    iconSprite.MoveToY(EndPositionMiss.Y, time_fadeout_miss, Easing.OutQuint);
+                    this.FadeOut(time_fadeout_miss, Easing.InQuint).Expire();
                     break;
             }
+        }
+
+        public bool OnPressed(KeyBindingPressEvent<BeatFighterAction> e)
+        {
+            return UpdateResult(true);
+
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<BeatFighterAction> e)
+        {
+            return;
         }
     }
 }
