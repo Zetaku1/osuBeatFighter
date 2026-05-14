@@ -22,6 +22,7 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
     {
         public override bool HandlePositionalInput => false;
 
+        //TODO change to const after finishing this part, they arent so that I can test with hot reload
         private double time_preempt = 450;
 
         private double time_fadein = 50;
