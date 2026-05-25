@@ -1,53 +1,113 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+#nullable enable
+using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
-using osu.Framework.Audio.Track;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Animations;
-using osu.Game.Beatmaps.ControlPoints;
+using osu.Framework.Bindables;
+using osu.Framework.Input.Bindings;
+using osu.Framework.Input.Events;
 using osu.Game.Graphics.Containers;
-using osu.Game.Skinning;
+using osu.Game.Rulesets.Judgements;
+using osu.Game.Screens.Play;
 
 namespace osu.Game.Rulesets.BeatFighter.UI
 {
-    public partial class DrawableBeatFighterMascot : BeatSyncedContainer
+    public partial class DrawableBeatFighterMascot : BeatSyncedContainer, IKeyBindingHandler<BeatFighterAction>
     {
-        private readonly TextureAnimation textureAnimation;
-        private int currentFrame;
+        private BeatFighterMascotAnimation? currentAnimation;
 
-        public DrawableBeatFighterMascot()
+        private readonly Dictionary<BeatFighterMascotAnimationState, BeatFighterMascotAnimation> animations;
+
+        public readonly Bindable<BeatFighterMascotAnimationState> State;
+        public readonly Bindable<JudgementResult?> LastResult;
+
+        // Track the count of keys currently pressed down (e.g., if pressing both Left and Right click keys)
+        private int activeKeyPresses;
+
+        public DrawableBeatFighterMascot(BeatFighterMascotAnimationState startingState = BeatFighterMascotAnimationState.Idle)
         {
-            // Add the general animation component as a child
-            InternalChild = textureAnimation = new TextureAnimation
-            {
-                Origin = Anchor.Centre,
-                Anchor = Anchor.Centre,
-            };
+            State = new Bindable<BeatFighterMascotAnimationState>(startingState);
+            LastResult = new Bindable<JudgementResult?>();
+
+            animations = new Dictionary<BeatFighterMascotAnimationState, BeatFighterMascotAnimation>();
         }
 
         [BackgroundDependencyLoader]
-        private void load(ISkinSource skin)
+        private void load(GameplayState? gameplayState)
         {
-            // Load your OWN textures here, not pippidon!
-            // For example: "bucket-idle-0", "bucket-idle-1", etc.
-            for (int i = 0; i < 4; i++)
+            InternalChildren = new[]
             {
-                var tex = skin.GetTexture($"bucket-idle-{i}");
-                if (tex != null) textureAnimation.AddFrame(tex);
-            }
+                animations[BeatFighterMascotAnimationState.Idle] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Idle),
+                animations[BeatFighterMascotAnimationState.Hit] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Hit),
+                animations[BeatFighterMascotAnimationState.Miss] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Miss),
+                animations[BeatFighterMascotAnimationState.Fail] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Fail),
+            };
+
+            if (gameplayState != null)
+                ((IBindable<JudgementResult>)LastResult).BindTo(gameplayState.LastJudgementResult);
         }
 
-        protected override void OnNewBeat(int beatIndex, TimingControlPoint timingPoint, EffectControlPoint effectPoint, ChannelAmplitudes amplitudes)
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            State.BindValueChanged(mascotStateChanged, true);
+            LastResult.BindValueChanged(onNewResult, true);
+        }
+
+        private void onNewResult(ValueChangedEvent<JudgementResult?> newResult)
+        {
+            //TODO, Add an emote when hitting, or maybe completing a combo or breaking one
+        }
+
+        private void mascotStateChanged(ValueChangedEvent<BeatFighterMascotAnimationState> state)
+        {
+            currentAnimation?.Hide();
+            currentAnimation = animations[state.NewValue];
+            currentAnimation.Show();
+        }
+
+        //TODO: Idle animation will be handled by the animation object, I need to see if I need this funct or not.
+        /*protected override void OnNewBeat(int beatIndex, TimingControlPoint timingPoint, EffectControlPoint effectPoint, ChannelAmplitudes amplitudes)
         {
             base.OnNewBeat(beatIndex, timingPoint, effectPoint, amplitudes);
 
-            // This is where the magic happens! Every beat, you advance the frame.
             if (textureAnimation.FrameCount > 0)
             {
                 textureAnimation.GotoFrame(currentFrame);
                 currentFrame = (currentFrame + 1) % textureAnimation.FrameCount;
             }
+        }*/
+
+        protected override void Update()
+        {
+            base.Update();
+            State.Value = getNextState();
+        }
+
+        private BeatFighterMascotAnimationState getNextState()
+        {
+            if (activeKeyPresses > 0)
+            {
+                return BeatFighterMascotAnimationState.Hit;
+            }
+
+            return BeatFighterMascotAnimationState.Idle;
+        }
+
+        public bool OnPressed(KeyBindingPressEvent<BeatFighterAction> e)
+        {
+            activeKeyPresses++;
+
+            //We don't want to consume the input, we let the hitobject consume it
+            return false;
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<BeatFighterAction> e)
+        {
+            // Safeguard to make sure our counter never drops below 0
+            activeKeyPresses = Math.Max(0, activeKeyPresses - 1);
         }
     }
 }

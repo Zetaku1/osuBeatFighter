@@ -17,11 +17,12 @@ namespace osu.Game.Rulesets.BeatFighter.UI
             // 1. Define the mascot
             var mascot = new DrawableBeatFighterMascot
             {
-                Anchor = Anchor.BottomLeft,
-                Origin = Anchor.BottomLeft,
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
                 RelativePositionAxes = Axes.Both,
-                Position = new Vector2(0.1f, 0.9f),
-                Scale = new Vector2(0.5f)
+                Position = new Vector2(0.0f, 0.0f),
+                Scale = new Vector2(0.5f),
+                Alpha = 1.0f,
             };
 
             AddRangeInternal(new Drawable[]
