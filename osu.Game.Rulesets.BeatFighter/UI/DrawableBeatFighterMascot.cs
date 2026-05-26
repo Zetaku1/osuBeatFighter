@@ -6,8 +6,11 @@ using System;
 using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
+using osu.Framework.Logging;
 using osu.Game.Graphics.Containers;
 using osu.Game.Rulesets.Judgements;
 using osu.Game.Screens.Play;
@@ -39,10 +42,14 @@ namespace osu.Game.Rulesets.BeatFighter.UI
         {
             InternalChildren = new[]
             {
-                animations[BeatFighterMascotAnimationState.Idle] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Idle),
-                animations[BeatFighterMascotAnimationState.Hit] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Hit),
-                animations[BeatFighterMascotAnimationState.Miss] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Miss),
-                animations[BeatFighterMascotAnimationState.Fail] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Fail),
+                animations[BeatFighterMascotAnimationState.Idle] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Idle)
+                    { bShouldSync = true, bIsLooping = true },
+                animations[BeatFighterMascotAnimationState.Hit] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Hit)
+                    { bShouldSync = false, bIsLooping = false },
+                animations[BeatFighterMascotAnimationState.Miss] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Miss)
+                    { bShouldSync = false, bIsLooping = false },
+                animations[BeatFighterMascotAnimationState.Fail] = new BeatFighterMascotAnimation(BeatFighterMascotAnimationState.Fail)
+                    { bShouldSync = true, bIsLooping = true },
             };
 
             if (gameplayState != null)
@@ -52,6 +59,8 @@ namespace osu.Game.Rulesets.BeatFighter.UI
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            animations.Values.ForEach(animation => animation.Hide());
             State.BindValueChanged(mascotStateChanged, true);
             LastResult.BindValueChanged(onNewResult, true);
         }
@@ -63,7 +72,9 @@ namespace osu.Game.Rulesets.BeatFighter.UI
 
         private void mascotStateChanged(ValueChangedEvent<BeatFighterMascotAnimationState> state)
         {
+            Logger.Log($"Mascot state changed Old State: {state.OldValue} New State: {state.NewValue}");
             currentAnimation?.Hide();
+            if (currentAnimation != null) currentAnimation.bHasPlayedOnce = false;
             currentAnimation = animations[state.NewValue];
             currentAnimation.Show();
         }
@@ -99,6 +110,7 @@ namespace osu.Game.Rulesets.BeatFighter.UI
         public bool OnPressed(KeyBindingPressEvent<BeatFighterAction> e)
         {
             activeKeyPresses++;
+            Logger.Log($"Active Key Presses: {activeKeyPresses}");
 
             //We don't want to consume the input, we let the hitobject consume it
             return false;
@@ -108,6 +120,7 @@ namespace osu.Game.Rulesets.BeatFighter.UI
         {
             // Safeguard to make sure our counter never drops below 0
             activeKeyPresses = Math.Max(0, activeKeyPresses - 1);
+            Logger.Log($"Active Key Presses: {activeKeyPresses}");
         }
     }
 }

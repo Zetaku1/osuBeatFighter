@@ -6,6 +6,7 @@ using osu.Framework.Audio.Track;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Animations;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Logging;
 using osu.Game.Beatmaps.ControlPoints;
 using osu.Game.Graphics.Containers;
 using osu.Game.Skinning;
@@ -20,6 +21,13 @@ namespace osu.Game.Rulesets.BeatFighter.UI
         private int currentFrame;
 
         public double DisplayTime;
+
+        public bool bShouldSync { get; set; }
+
+        public bool bIsLooping { get; set; }
+
+        //To track if it already played once
+        public bool bHasPlayedOnce { get; set; } = false;
 
         public bool Completed => !textureAnimation.IsPlaying || textureAnimation.PlaybackPosition >= textureAnimation.Duration;
 
@@ -36,9 +44,49 @@ namespace osu.Game.Rulesets.BeatFighter.UI
             if (textureAnimation.FrameCount == 0 || textureAnimation.IsPlaying)
                 return;
 
+            if (!bShouldSync)
+            {
+                return;
+            }
+
+            //basically not looping animations only play once
+            if (!bIsLooping && (currentFrame + 1) % textureAnimation.FrameCount == 0)
+            {
+                return;
+            }
+
             textureAnimation.GotoFrame(currentFrame);
             currentFrame = (currentFrame + 1) % textureAnimation.FrameCount;
         }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (textureAnimation.FrameCount == 0 || textureAnimation.IsPlaying || Alpha == 0)
+                return;
+
+            //basically not looping animations only play once
+            if (!bIsLooping && (currentFrame) % textureAnimation.FrameCount == 0 && bHasPlayedOnce)
+            {
+                return;
+            }
+
+            if (!bShouldSync)
+            {
+                textureAnimation.GotoFrame(currentFrame);
+
+                int nextFrame = (currentFrame + 1) % textureAnimation.FrameCount;
+                currentFrame = nextFrame;
+
+                if (nextFrame == 0)
+                {
+                    bHasPlayedOnce = true;
+                }
+            }
+        }
+
+
 
         //Same as TaikoMascotAnimation I just prefer to have it on this module instead of creating other dependencies
         private partial class ManualBeatFighterMascotTextureAnimation : TextureAnimation
@@ -97,7 +145,7 @@ namespace osu.Game.Rulesets.BeatFighter.UI
             {
                 Origin = Anchor.Centre;
                 Anchor = Anchor.Centre;
-                Position = new Vector2(-1000, -300);
+                Position = new Vector2(-1100, -450);
                 Alpha = 1.0f;
                 Scale = new Vector2(1.2f);
             });
