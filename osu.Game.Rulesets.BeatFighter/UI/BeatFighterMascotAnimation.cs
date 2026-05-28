@@ -6,7 +6,6 @@ using osu.Framework.Audio.Track;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Animations;
 using osu.Framework.Graphics.Textures;
-using osu.Framework.Logging;
 using osu.Game.Beatmaps.ControlPoints;
 using osu.Game.Graphics.Containers;
 using osu.Game.Skinning;
@@ -41,52 +40,41 @@ namespace osu.Game.Rulesets.BeatFighter.UI
         protected override void OnNewBeat(int beatIndex, TimingControlPoint timingPoint, EffectControlPoint effectPoint, ChannelAmplitudes amplitudes)
         {
             // assume that if the animation is playing on its own, it's independent from the beat and doesn't need to be touched.
-            if (textureAnimation.FrameCount == 0 || textureAnimation.IsPlaying)
+            if (textureAnimation.FrameCount == 0 || textureAnimation.IsPlaying || Alpha == 0.0f || !bShouldSync)
                 return;
 
-            if (!bShouldSync)
-            {
-                return;
-            }
-
-            //basically not looping animations only play once
-            if (!bIsLooping && (currentFrame + 1) % textureAnimation.FrameCount == 0)
-            {
-                return;
-            }
-
-            textureAnimation.GotoFrame(currentFrame);
-            currentFrame = (currentFrame + 1) % textureAnimation.FrameCount;
+            goToNextFrame();
         }
 
         protected override void Update()
         {
             base.Update();
 
-            if (textureAnimation.FrameCount == 0 || textureAnimation.IsPlaying || Alpha == 0)
+            //Basically update animation only if we are not synced on beat
+            if (textureAnimation.FrameCount == 0 || textureAnimation.IsPlaying || Alpha == 0.0f || bShouldSync)
                 return;
 
-            //basically not looping animations only play once
-            if (!bIsLooping && (currentFrame) % textureAnimation.FrameCount == 0 && bHasPlayedOnce)
-            {
-                return;
-            }
-
-            if (!bShouldSync)
-            {
-                textureAnimation.GotoFrame(currentFrame);
-
-                int nextFrame = (currentFrame + 1) % textureAnimation.FrameCount;
-                currentFrame = nextFrame;
-
-                if (nextFrame == 0)
-                {
-                    bHasPlayedOnce = true;
-                }
-            }
+            goToNextFrame();
         }
 
+        private void goToNextFrame()
+        {
+            //basically not looping animations only play once
+            if (!bIsLooping && (currentFrame + 1) % textureAnimation.FrameCount == 0 && bHasPlayedOnce)
+            {
+                return;
+            }
 
+            textureAnimation.GotoFrame(currentFrame);
+
+            int nextFrame = (currentFrame + 1) % textureAnimation.FrameCount;
+            currentFrame = nextFrame;
+
+            if (nextFrame == 0)
+            {
+                bHasPlayedOnce = true;
+            }
+        }
 
         //Same as TaikoMascotAnimation I just prefer to have it on this module instead of creating other dependencies
         private partial class ManualBeatFighterMascotTextureAnimation : TextureAnimation
