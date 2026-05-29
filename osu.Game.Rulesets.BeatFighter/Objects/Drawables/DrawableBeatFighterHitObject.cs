@@ -1,6 +1,7 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+#nullable enable
 using System.Collections.Generic;
 using osu.Framework.Logging;
 using osu.Framework.Allocation;
@@ -13,6 +14,7 @@ using osu.Framework.Utils;
 using osu.Game.Audio;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Scoring;
+using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
 
@@ -41,12 +43,20 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
         public Vector2 StartingScale = new Vector2(1.5f);
         public Vector2 EndScale = new Vector2(0.2f);
 
-        public float DeltaRotation = -0.5f;
-
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        private void load(ISkinSource source, TextureStore textures)
         {
-            iconSprite.Texture = textures.Get(@"Bucket");
+            ISkin? skin = source.FindProvider(s => s.GetTexture(@"Bucket") != null);
+
+            if (skin != null)
+            {
+                iconSprite.Texture = skin.GetTexture(@"Bucket");
+            }
+            else
+            {
+                iconSprite.Texture = textures.Get(@"Bucket");
+            }
+
             Alpha = 0;
 
             if (iconSprite.Texture == null)
@@ -142,7 +152,6 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
         public bool OnPressed(KeyBindingPressEvent<BeatFighterAction> e)
         {
             return UpdateResult(true);
-
         }
 
         public void OnReleased(KeyBindingReleaseEvent<BeatFighterAction> e)

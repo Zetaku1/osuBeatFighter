@@ -76,7 +76,7 @@ namespace osu.Game.Rulesets.BeatFighter.UI
             }
         }
 
-        //Same as TaikoMascotAnimation I just prefer to have it on this module instead of creating other dependencies
+        //very similar to TaikoMascotAnimation I just prefer to have it on this module instead of creating other dependencies
         private partial class ManualBeatFighterMascotTextureAnimation : TextureAnimation
         {
             private readonly BeatFighterMascotAnimationState state;
@@ -93,7 +93,7 @@ namespace osu.Game.Rulesets.BeatFighter.UI
             {
                 ISkin? skin = source.FindProvider(s => getAnimationFrame(s, state, 0) != null);
 
-                if (skin != null)
+                if (skin != null) //Even if it has skin, we need to see if it supports the mascot state
                 {
                     for (int frameIndex = 0; true; frameIndex++)
                     {
