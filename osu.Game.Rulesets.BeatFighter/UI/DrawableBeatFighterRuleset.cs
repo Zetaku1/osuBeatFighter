@@ -28,7 +28,11 @@ namespace osu.Game.Rulesets.BeatFighter.UI
 
         protected override ReplayInputHandler CreateReplayInputHandler(Replay replay) => new BeatFighterFramedReplayInputHandler(replay);
 
-        public override DrawableHitObject<BeatFighterHitObject> CreateDrawableRepresentation(BeatFighterHitObject h) => new DrawableBeatFighterHitObject(h);
+        public override DrawableHitObject<BeatFighterHitObject> CreateDrawableRepresentation(BeatFighterHitObject h)
+        {
+            //TODO manage cases of flurry and normal bucket here
+            return new DrawableBeatFighterBucket(h);
+        }
 
         protected override PassThroughInputManager CreateInputManager() => new BeatFighterInputManager(Ruleset?.RulesetInfo);
     }

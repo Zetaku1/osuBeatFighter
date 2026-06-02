@@ -1,0 +1,162 @@
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// See the LICENCE file in the repository root for full licence text.
+
+#nullable enable
+using System.Collections.Generic;
+using osu.Framework.Allocation;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
+using osu.Framework.Input.Bindings;
+using osu.Framework.Input.Events;
+using osu.Framework.Logging;
+using osu.Framework.Utils;
+using osu.Game.Audio;
+using osu.Game.Rulesets.Objects.Drawables;
+using osu.Game.Rulesets.Scoring;
+using osu.Game.Skinning;
+using osuTK;
+using osuTK.Graphics;
+
+namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
+{
+    public partial class DrawableBeatFighterBucket: DrawableHitObject<BeatFighterHitObject>, IKeyBindingHandler<BeatFighterAction>
+    {
+        public override bool HandlePositionalInput => false;
+
+        //TODO change to const after finishing this part, they arent so that I can test with hot reload
+        private double time_preempt = 450;
+
+        private double time_fadein = 50;
+
+        //Time betweeen the object appearing on screen and reaching its end trajectory
+        private double time_duration = 1200;
+
+        private double time_fadeout_hit = 1200;
+        private double time_fadeout_miss = 1300;
+
+        private readonly Sprite IconSprite;
+
+        public Texture SpriteTexture => IconSprite.Texture;
+
+        public Vector2 StartingPosition = new Vector2(500, 500);
+        public Vector2 EndPosition = new Vector2(0, 0);
+        public Vector2 EndPositionMiss = new Vector2(-50, 50);
+
+        public Vector2 StartingScale = new Vector2(1.5f);
+        public Vector2 EndScale = new Vector2(0.2f);
+        protected override double InitialLifetimeOffset => time_preempt;
+
+        public DrawableBeatFighterBucket(BeatFighterHitObject hitObject)
+            : base(hitObject)
+        {
+            Origin = Anchor.Centre;
+            Anchor = Anchor.Centre;
+            Size = new Vector2(400);
+            LifetimeStart = HitObject.StartTime - time_duration;
+            IconSprite = new Sprite()
+            {
+                RelativeSizeAxes = Axes.Both,
+                Origin = Anchor.Centre,
+                Anchor = Anchor.Centre,
+                Scale = StartingScale,
+                Position = StartingPosition,
+                Rotation = RNG.NextSingle() * 360,
+                Alpha = 0.0f
+            };
+
+            AddRangeInternal(new Drawable[]
+            {
+                IconSprite
+            });
+        }
+
+        [BackgroundDependencyLoader]
+        private void load(ISkinSource source, TextureStore textures)
+        {
+            ISkin? skin = source.FindProvider(s => s.GetTexture(@"Bucket") != null);
+
+            if (skin != null)
+            {
+                IconSprite.Texture = skin.GetTexture(@"Bucket");
+            }
+            else
+            {
+                IconSprite.Texture = textures.Get(@"Bucket");
+            }
+
+            if (IconSprite.Texture == null)
+            {
+                Logger.Log("Failed to find bucket texture!", LoggingTarget.Runtime, LogLevel.Important);
+            }
+        }
+
+        public override IEnumerable<HitSampleInfo> GetSamples() => new[]
+        {
+            new HitSampleInfo(@"punch")
+        };
+
+        protected override void UpdateInitialTransforms()
+        {
+            base.UpdateInitialTransforms();
+            this.FadeInFromZero(time_fadein);
+
+            IconSprite.FadeIn(time_fadein);
+            // Move from (200,200) to (0,0) and Scale from 3 to 1 over 500ms
+            IconSprite.RotateTo(RNG.NextSingle() * 360 - 360, time_duration * 2, Easing.OutQuint);
+
+            IconSprite.MoveToX(EndPosition.X, time_duration, Easing.OutQuint);
+
+            IconSprite.MoveToY(EndPosition.Y - 50, time_duration / 3.0f, Easing.OutQuint)
+                      .Then()
+                      .MoveToY(EndPosition.Y, time_duration / 1.2f, Easing.OutQuint);
+            IconSprite.ScaleTo(EndScale, time_duration, Easing.OutQuint);
+        }
+
+        protected override void UpdateHitStateTransforms(ArmedState state)
+        {
+            switch (state)
+            {
+                case ArmedState.Hit:
+                    this.FadeOut(time_fadeout_hit, Easing.OutQuint);
+                    IconSprite.MoveToX(Position.X + 1000, time_fadeout_hit, Easing.OutQuint).Expire();
+                    break;
+
+                case ArmedState.Miss:
+                    this.FadeColour(Color4.Red, time_fadeout_miss);
+                    //iconSprite.RotateTo(iconSprite.Rotation - 60, time_fadeout_miss, Easing.OutQuint);
+                    IconSprite.ScaleTo(EndScale * 0.5f, time_fadeout_miss, Easing.OutQuint);
+                    IconSprite.MoveToX(EndPositionMiss.X, time_fadeout_miss, Easing.OutQuint);
+                    IconSprite.MoveToY(EndPositionMiss.Y, time_fadeout_miss, Easing.OutQuint);
+                    this.FadeOut(time_fadeout_miss, Easing.InQuint).Expire();
+                    break;
+            }
+        }
+
+        protected override void CheckForResult(bool userTriggered, double timeOffset)
+        {
+            if (!userTriggered)
+            {
+                if (!HitObject.HitWindows.CanBeHit(timeOffset))
+                    ApplyMinResult();
+                return;
+            }
+
+            var result = HitObject.HitWindows.ResultFor(timeOffset);
+            if (result == HitResult.None)
+                return;
+
+            ApplyResult(result);
+        }
+
+        public bool OnPressed(KeyBindingPressEvent<BeatFighterAction> e)
+        {
+            return UpdateResult(true);
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<BeatFighterAction> e)
+        {
+            return;
+        }
+    }
+}
