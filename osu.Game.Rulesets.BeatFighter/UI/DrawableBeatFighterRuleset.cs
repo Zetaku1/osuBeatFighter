@@ -30,7 +30,7 @@ namespace osu.Game.Rulesets.BeatFighter.UI
 
         public override DrawableHitObject<BeatFighterHitObject> CreateDrawableRepresentation(BeatFighterHitObject h)
         {
-            //TODO manage cases of flurry and normal bucket here
+            //TODO Maybe we want to pool them, but for now leave as is.
             return new DrawableBeatFighterBucket(h);
         }
 

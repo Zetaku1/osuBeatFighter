@@ -20,7 +20,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
 {
-    public partial class DrawableBeatFighterBucket: DrawableHitObject<BeatFighterHitObject>, IKeyBindingHandler<BeatFighterAction>
+    public partial class DrawableBeatFighterBucket : DrawableHitObject<BeatFighterHitObject>, IKeyBindingHandler<BeatFighterAction>
     {
         public override bool HandlePositionalInput => false;
 
@@ -124,7 +124,6 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
 
                 case ArmedState.Miss:
                     this.FadeColour(Color4.Red, time_fadeout_miss);
-                    //iconSprite.RotateTo(iconSprite.Rotation - 60, time_fadeout_miss, Easing.OutQuint);
                     IconSprite.ScaleTo(EndScale * 0.5f, time_fadeout_miss, Easing.OutQuint);
                     IconSprite.MoveToX(EndPositionMiss.X, time_fadeout_miss, Easing.OutQuint);
                     IconSprite.MoveToY(EndPositionMiss.Y, time_fadeout_miss, Easing.OutQuint);
