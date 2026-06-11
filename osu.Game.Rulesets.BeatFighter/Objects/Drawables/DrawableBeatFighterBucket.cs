@@ -20,33 +20,8 @@ using osuTK.Graphics;
 
 namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
 {
-    public partial class DrawableBeatFighterBucket : DrawableHitObject<BeatFighterHitObject>, IKeyBindingHandler<BeatFighterAction>
+    public partial class DrawableBeatFighterBucket :DrawableBeatFighterHitObject, IKeyBindingHandler<BeatFighterAction>
     {
-        public override bool HandlePositionalInput => false;
-
-        //TODO change to const after finishing this part, they arent so that I can test with hot reload
-        private double time_preempt = 450;
-
-        private double time_fadein = 50;
-
-        //Time betweeen the object appearing on screen and reaching its end trajectory
-        private double time_duration = 1200;
-
-        private double time_fadeout_hit = 1200;
-        private double time_fadeout_miss = 1300;
-
-        private readonly Sprite IconSprite;
-
-        public Texture SpriteTexture => IconSprite.Texture;
-
-        public Vector2 StartingPosition = new Vector2(500, 500);
-        public Vector2 EndPosition = new Vector2(0, 0);
-        public Vector2 EndPositionMiss = new Vector2(-50, 50);
-
-        public Vector2 StartingScale = new Vector2(1.5f);
-        public Vector2 EndScale = new Vector2(0.2f);
-        protected override double InitialLifetimeOffset => time_preempt;
-
         public DrawableBeatFighterBucket(BeatFighterHitObject hitObject)
             : base(hitObject)
         {
