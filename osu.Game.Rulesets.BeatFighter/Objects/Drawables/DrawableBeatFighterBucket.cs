@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable enable
-using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
@@ -11,7 +10,6 @@ using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osu.Framework.Utils;
-using osu.Game.Audio;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Skinning;
@@ -66,10 +64,6 @@ namespace osu.Game.Rulesets.BeatFighter.Objects.Drawables
             }
         }
 
-        public override IEnumerable<HitSampleInfo> GetSamples() => new[]
-        {
-            new HitSampleInfo(@"punch")
-        };
 
         protected override void UpdateInitialTransforms()
         {
