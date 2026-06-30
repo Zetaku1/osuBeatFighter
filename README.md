@@ -5,6 +5,10 @@ This ruleset imitates the Rhythm Heaven Fighter minigame!
 
 A custom rhythm ruleset for [osu!lazer](https://github.com/ppy/osu).
 
+Demo: [Youtube Link](https://www.youtube.com/watch?v=qETTC0vAtPM)
+<img width="1380" height="724" alt="image" src="https://github.com/user-attachments/assets/56ce9dd9-102c-43e6-a0aa-a4f6a8e950b1" />
+
+
 ## How To Install
 1. Install osu! Lazer [osu! download](https://osu.ppy.sh/)
 2. Go to Settings in game open osu folder
