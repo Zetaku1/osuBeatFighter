@@ -15,5 +15,5 @@ Demo: [Youtube Link](https://www.youtube.com/watch?v=qETTC0vAtPM)
 3. Drag and drop ```osu.Game.Rulesets.BeatFighter.dll``` into the rulesets folder, You can download it from releases
 4. Restart the game!
 5. Open the game, on the top of the Game UI, select the BeatFighter ruleset, it is an icon with B and F overlayed
-6. Choose or download any song you want to play from the oficial osu! website
+6. Choose or download any song you want to play from the official osu! website
 7. Enjoy!
